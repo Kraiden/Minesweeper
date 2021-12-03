@@ -20,7 +20,10 @@ public class MenuController : MonoBehaviour
     public void CustomClick() {}
 
     public void SettingsClick() {}
-    public void QuitClick() {}
+
+    public void QuitClick() {
+        Application.Quit();
+    }
 
     private void StartGame(int x, int y, int bombs){
         PlayerPrefs.SetInt("map-x", x);
