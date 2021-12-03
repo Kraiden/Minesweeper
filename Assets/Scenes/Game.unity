@@ -191,7 +191,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 2
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -293,6 +293,9 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 7465c577a5889194ebd365a7866ccc29, type: 3}
     - {fileID: 21300000, guid: 6dfac23fc7c0d9e409c7b9bf2271dbe3, type: 3}
     - {fileID: 21300000, guid: 759bf70fa0d622e4bb8e1ed92773a5a2, type: 3}
+  - groupID: thinking
+    group:
+    - {fileID: 21300000, guid: aa39ed33973caeb458f0e95bb8aadcb9, type: 3}
 --- !u!114 &136724384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1184,7 +1187,7 @@ MonoBehaviour:
   - {r: 0.2656386, g: 0, b: 0.44705883, a: 1}
   - {r: 0.2924528, g: 0, b: 0, a: 1}
   - {r: 0.02158241, g: 0.81622076, b: 0.9150943, a: 1}
-  - {r: 0.7075472, g: 0.050062295, b: 0.69749343, a: 0}
+  - {r: 0.7075472, g: 0.050062295, b: 0.69749343, a: 1}
   - {r: 1, g: 0.43358955, b: 0.051886797, a: 1}
   flagColor: {r: 0.7529412, g: 0.37254903, b: 0.28235295, a: 1}
   mapSize:
@@ -1384,6 +1387,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2100038918}
   - component: {fileID: 2100038916}
+  - component: {fileID: 2100038917}
   m_Layer: 0
   m_Name: UI Camera
   m_TagString: Untagged
@@ -1434,6 +1438,39 @@ Camera:
   m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &2100038917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100038915}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 1
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!4 &2100038918
 Transform:
   m_ObjectHideFlags: 0
