@@ -5,6 +5,8 @@ public class Square{
 
     public Position position;
 
+    public Square[] neighbors;
+
     public Square(int x, int y){
         position = new Position(x, y);
     }
