@@ -131,12 +131,12 @@ public class SPwCSP : Algorithm
                     }
                 }
 
-                Debug.Log("-----------------------------------------------------------------\n" 
-                + "Constraint decomp loop");
+                // Debug.Log("-----------------------------------------------------------------\n" 
+                // + "Constraint decomp loop");
             }
 
-            Debug.Log("______________________________________________________________________\n" 
-                + "Constraint decomp loop broken");
+            // Debug.Log("______________________________________________________________________\n" 
+            //     + "Constraint decomp loop broken");
 
             // solve variables if All-Free-Neighbor or All-Mine-Neighbor
             foreach(Constraints constraints in constraintsSet) {
@@ -166,7 +166,7 @@ public class SPwCSP : Algorithm
             }
 
             if(!mapUpdated){
-                Debug.Log("Unsolvable...");
+                // Debug.Log("Unsolvable...");
                 //if both methods fail, call it unsolvable
                 forceBreak = true;
                 return false;

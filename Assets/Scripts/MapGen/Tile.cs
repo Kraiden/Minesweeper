@@ -78,7 +78,7 @@ public class Tile{
                 isRevealed = true;
                 revealed = true;
 
-                AudioManager.instance.PlaySound2d("reveal",.5f);
+                AudioManager.instance.PlaySound2d("reveal");
 
                 overTile.gameObject.SetActive(false);
 

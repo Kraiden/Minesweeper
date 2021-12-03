@@ -249,35 +249,29 @@ public class Generator : MonoBehaviour
     }
 
     private void HandleTileReveal(Ray touchRay){
-        RaycastHit hit;
+        Coord hitCoord = PositionToCoord(touchRay.GetPoint(0));
+        if(hitCoord != null){
+            if(!gameStarted){
+                startGame(hitCoord);
+            }
+            
+            if(!gameOver){
+                if(allTiles.ContainsKey(hitCoord)){
+                    Tile tile = allTiles[hitCoord];
+                    bool isAlreadyRevealed = tile.isRevealed;
+                    int adjReveals = 0;
 
-        if(Physics.Raycast(touchRay, out hit, 100f)) {
-            Transform it = hit.collider.transform;
-            if(it != null){
-                Coord hitCoord = PositionToCoord(it.position);
-
-                if(!gameStarted){
-                    startGame(hitCoord);
-                }
-                
-                if(!gameOver){
-                    if(allTiles.ContainsKey(hitCoord)){
-                        Tile tile = allTiles[hitCoord];
-                        bool isAlreadyRevealed = tile.isRevealed;
-                        int adjReveals = 0;
-
-                        if((!tile.isBomb && tile.adjBombs == 0)){
-                            RecurseReveal(hitCoord);
-                        } else if (!tile.isBomb && tile.isRevealed && CalcAdjFlags(hitCoord) == tile.adjBombs) {
-                            adjReveals = RevealAdj(hitCoord);
-                        } else {
-                            tile.Reveal();
-                        }
-                        
-                        if((!isAlreadyRevealed && tile.isRevealed) || adjReveals != 0){
-                            if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
-                                Vibrator.Vibrate(50);
-                            }
+                    if((!tile.isBomb && tile.adjBombs == 0)){
+                        RecurseReveal(hitCoord);
+                    } else if (!tile.isBomb && tile.isRevealed && CalcAdjFlags(hitCoord) == tile.adjBombs) {
+                        adjReveals = RevealAdj(hitCoord);
+                    } else {
+                        tile.Reveal();
+                    }
+                    
+                    if((!isAlreadyRevealed && tile.isRevealed) || adjReveals != 0){
+                        if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
+                            Vibrator.Vibrate(50);
                         }
                     }
                 }
@@ -287,15 +281,10 @@ public class Generator : MonoBehaviour
 
     private void HandleTileFlag(Ray touchRay){
         if(!gameOver){
-            RaycastHit hit;
-
-            if(Physics.Raycast(touchRay, out hit, 100f)) {
-                Transform it = hit.collider.transform;
-                if(it != null){
-                    Coord hitCoord = PositionToCoord(it.position);
-                    if(allTiles.ContainsKey(hitCoord)){
-                        allTiles[hitCoord].Flag();
-                    }
+            Coord hitCoord = PositionToCoord(touchRay.GetPoint(0));
+            if(hitCoord != null){
+                if(allTiles.ContainsKey(hitCoord)){
+                    allTiles[hitCoord].Flag();
                 }
             }
         }
@@ -365,10 +354,13 @@ public class Generator : MonoBehaviour
     private Coord PositionToCoord(Vector3 position){
         int x = Mathf.RoundToInt(position.x + (mapSize.x / 2f) );
         int y = Mathf.RoundToInt(position.y + (mapSize.y / 2f) );
-        x = Mathf.Clamp(x, 0, mapSize.x);
-        y = Mathf.Clamp(y, 0, mapSize.y);
 
-        return new Coord(x,y);
+
+        if(x < 0 || x > mapSize.x || y < 0 || y > mapSize.y){
+            return null;
+        } else {
+            return new Coord(x,y);
+        }
     }
 
     private void MoveCam(){

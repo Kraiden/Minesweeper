@@ -46,7 +46,6 @@ public class AudioManager : MonoBehaviour
         if(group.simultaneosCount >= 0){
             if(soundsPlaying.ContainsKey(name)){
                 int count = soundsPlaying[name];
-                Debug.Log(name + " inc " + count);
                 if(count >= group.simultaneosCount) return null;
             } else {
                 soundsPlaying[name] = 0;
@@ -67,7 +66,6 @@ public class AudioManager : MonoBehaviour
     private IEnumerator soundEnded(string name, float clipLength){
         yield return new WaitForSeconds(clipLength);
         soundsPlaying[name]--;
-        Debug.Log(name + " dec " + soundsPlaying[name]);
     }
 
 }
