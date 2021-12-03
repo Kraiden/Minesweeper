@@ -1,5 +1,6 @@
 using System.Collections;
 //using System.Diagnostics;
+using System.Threading;
 using UnityEngine;
 
 //An implementation of solver by 
@@ -10,7 +11,15 @@ using UnityEngine;
 // Adapted by: Someone who doesn't know C# very well... Sooo use at your own risk.
 public class Solver{
 
-    private static Solver instance;  
+    private static Solver instance;
+
+    private int x;
+    private int y;
+    private int bombCount;
+    private Coord firstClick;
+    private System.Action<Game[,]> callback;
+
+    private Game[,] result;
 
     private Solver() {}
 
@@ -22,6 +31,25 @@ public class Solver{
     }
 
     public IEnumerator GenerateSolvableMap(int x, int y, int bombCount, Coord firstClick, System.Action<Game[,]> callback){
+        this.x = x;
+        this.y = y;
+        this.bombCount = bombCount;
+        this.firstClick = firstClick;
+        this.callback = callback;
+
+        Thread genThread = new Thread(DoMapGen);
+        genThread.Priority = System.Threading.ThreadPriority.Highest;
+        genThread.Start();
+
+        while(genThread.IsAlive){
+            yield return null;
+        }
+
+        callback(result);
+
+    }
+
+    private void DoMapGen(){
         GameBoard board = new GameBoard(x, y, bombCount);
         Square clickedSquare = board.squares[firstClick.x, firstClick.y];
 
@@ -29,6 +57,8 @@ public class Solver{
 
         int genAttempts = 0;
         // Stopwatch s = Stopwatch.StartNew();
+
+        System.Random r = new System.Random();
 
         bool isSolvable = false;
         while (!isSolvable){
@@ -41,8 +71,8 @@ public class Solver{
             board.probedCount = 1;
 
             while (placedMineNum < board.mineNumber){
-                randRow = Random.Range(0, board.gridRow);
-                randCol = Random.Range(0, board.gridCol);
+                randRow = r.Next(0, board.gridRow);
+                randCol = r.Next(0, board.gridCol);
 
                 //Don't place mines near start position
                  if(!(randRow >= clickedSquare.position.x - 1 && randRow <= clickedSquare.position.x + 1 
@@ -55,10 +85,6 @@ public class Solver{
 
             isSolvable = alg.IsSolvable(board, clickedSquare.position.x * board.gridCol + clickedSquare.position.y);
 
-            //*sigh* I dunno why this takes so fecking long
-            if(genAttempts % 12 == 0 ){
-                yield return null;
-            }
             //Debug.Log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" + 
             //" is solveable loop");
         }
@@ -75,7 +101,7 @@ public class Solver{
             }
         }
 
-        callback(game);
+        result = game;
     }
 
     public struct Game{
