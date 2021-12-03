@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using TMPro;
 using AndroidNativeCore;
 
 public class Generator : MonoBehaviour
@@ -15,7 +14,10 @@ public class Generator : MonoBehaviour
     public ParticleSystem flagEffect;
     public ParticleSystem revealEffect;
 
+    //TODO: Ugh, sorry about the inconsistency in spelling here. I wanted to stick with the american spelling 
+    // to be consistent with the SDK, but my brain still wants to spell it the british way.
     public Color[] countColours;
+    public Color flagColor;
     
     public Coord mapSize = new Coord (16, 30);
     public int bombCount = 99;
@@ -28,9 +30,6 @@ public class Generator : MonoBehaviour
     private Queue<Tile> bombTiles;
 
     private Controller controller;
-
-    private static Color flagColor;
-    private static Color overTileStartColor;
 
     public CameraLocation startCamera {private set; get;}
 
@@ -52,12 +51,15 @@ public class Generator : MonoBehaviour
         Tile.OnBombHit = HandleBombHit;
         Tile.OnCheckWin = CheckWinState;
         Tile.OnFlagChange = OnFlagChange;
+        Tile.playEffect = playEffect;
+
         Tile.popEffect = popEffect;
         Tile.flagEffect = flagEffect;
         Tile.revealEffect = revealEffect;
 
-        overTileStartColor = tilePrefab.GetComponent<Renderer>().sharedMaterial.color;
-        flagColor = countColours[8];
+        Tile.overTileStartColor = tilePrefab.GetComponent<Renderer>().sharedMaterial.color;
+        Tile.flagColor = flagColor;
+        Tile.countColours = countColours;
 
         int x = PlayerPrefs.GetInt("map-x", 16);
         int y = PlayerPrefs.GetInt("map-y", 30);
@@ -66,14 +68,14 @@ public class Generator : MonoBehaviour
         mapSize = new Coord(x, y);
         bombCount = bombs;
 
+        InitBoard();
         GenerateMap();
     }
 
-    public void GenerateMap(){
-        gameStarted = false;
-
+    private void InitBoard(){
         string holderName = "Generated Map";
         string holderTileName = "Map Tiles";
+        string holderBombName = "Map Bombs";
 
         if(transform.Find(holderName)) {
             DestroyImmediate(transform.Find(holderName).gameObject);
@@ -85,17 +87,31 @@ public class Generator : MonoBehaviour
         Transform tileHolder = new GameObject(holderTileName).transform;
         tileHolder.parent = mapHolder;
 
+        Transform bombHolder = new GameObject(holderBombName).transform;
+        bombHolder.parent = mapHolder;
+
         allTiles = new Dictionary<Coord, Tile>();
 
         for(int x = 0; x < mapSize.x ; x++){
             for (int y = 0; y < mapSize.y; y++) {
                 Coord c = new Coord(x, y);
-                Tile tile = new Tile(c);
+
+                Transform overTile = SpawnTile(c, tileHolder);
+                Transform underTile = SpawnUnderTile(c, tileHolder);
+                Transform bomb = SpawnBomb(c, bombHolder);
+
+                Tile tile = new Tile(c, overTile, underTile, bomb);
 
                 allTiles.Add(c, tile);
-
-                SpawnTile(c, tileHolder, tile);
             }
+        }
+    }
+
+    public void GenerateMap(){
+        gameStarted = false;
+
+        foreach(Tile tile in allTiles.Values){
+            tile.Reset();
         }
 
         MoveCam();
@@ -105,29 +121,21 @@ public class Generator : MonoBehaviour
         gameOver = false;
         gameStarted = true;
 
-        string holderBombName = "Map Bombs";
-
-        Transform bombHolder = new GameObject(holderBombName).transform;
-        bombHolder.parent = mapHolder;
-
         bombTiles = new Queue<Tile>();
 
-        bool[,] game = Solver.getSolver().GenerateSolvableMap(mapSize.x, mapSize.y, bombCount, firstClick);
+        Solver.Game[,] game = Solver.getSolver().GenerateSolvableMap(mapSize.x, mapSize.y, bombCount, firstClick);
 
         for(int i = 0; i < mapSize.x; i++){
             for(int j = 0; j < mapSize.y; j++){
-                bool isBomb = game[i,j];
+                Solver.Game g = game[i,j];
                 Coord c = new Coord(i, j);
-                allTiles[c].isBomb = isBomb;
-            }
-        }
 
-        foreach(Tile t in allTiles.Values){
-            Coord c = t.coord;
-            if(t.isBomb){
-                SpawnBomb(c, bombHolder);
-            } else {
-                SpawnUnderTile(c, bombHolder, CalculateBombs(c));
+                Tile t = allTiles[c];
+                t.SetBomb(g.IsMine, g.adjCount);
+
+                if(t.isBomb){
+                    bombTiles.Enqueue(t);
+                }
             }
         }
 
@@ -136,84 +144,31 @@ public class Generator : MonoBehaviour
         }
     }
 
-    private void SpawnTile(Coord coord, Transform parent, Tile tile){
+    private Transform SpawnTile(Coord coord, Transform parent){
         Vector3 tilePosition = CoordToPosition(coord);
         Transform newTile = Instantiate(tilePrefab, tilePosition, Quaternion.identity);
         newTile.localScale = Vector3.one * 0.95f ;
         newTile.parent = parent;
 
-        tile.overTile = newTile;
+        return newTile;
     }
 
-    private void SpawnUnderTile(Coord coord, Transform parent, int count){
+    private Transform SpawnUnderTile(Coord coord, Transform parent){
         Vector3 tilePosition = CoordToPosition(coord.x,coord.y,1);
         Transform newTile = Instantiate(underTilePrefab, tilePosition, Quaternion.identity);
         newTile.localScale = Vector3.one * 0.95f ;
         newTile.parent = parent;
 
-        Tile tile = allTiles[coord];
-        tile.adjBombs = count;
-        tile.underTile = newTile;
-
-        TextMeshPro tmp = newTile.gameObject.GetComponentInChildren<TextMeshPro>();
-        if(count > 0){
-            tmp.text = count.ToString();
-            tmp.color = countColours[count -1];
-
-        } else {
-            tmp.text = "";
-        }
+        return newTile;
     }
 
-    private void SpawnBomb(Coord coord, Transform parent){
+    private Transform SpawnBomb(Coord coord, Transform parent){
         Vector3 bombPosition = CoordToPosition(coord.x,coord.y,1);
         Transform newBomb = Instantiate(bombPrefab, bombPosition, Quaternion.identity);
         newBomb.localScale = Vector3.one * 0.5f ;
         newBomb.parent = parent;
 
-        Tile tile = allTiles[coord];
-        tile.isBomb = true;
-        tile.underTile = newBomb;
-
-        bombTiles.Enqueue(tile);
-    }
-
-    private bool CoordIsValidBombCoord(Coord startCoord, Coord test){
-        if(test == null) {
-            return false;
-        }
-
-        int x = startCoord.x;
-        int y = startCoord.y;
-
-        bool isValid = (test.x > x + 2 || test.x < x -2) ||
-                (test.y > y + 2 || test.y < y -2);
-
-        return isValid;
-    }
-
-    private int CalculateBombs(Coord c){
-        int i = 0;
-        List<Coord> adjacent = new List<Coord>();
-        adjacent.Add(new Coord(c.x -1, c.y - 1));
-        adjacent.Add(new Coord(c.x -1, c.y));
-        adjacent.Add(new Coord(c.x -1, c.y + 1));
-        adjacent.Add(new Coord(c.x, c.y - 1));
-        adjacent.Add(new Coord(c.x, c.y + 1));
-        adjacent.Add(new Coord(c.x + 1, c.y - 1));
-        adjacent.Add(new Coord(c.x + 1, c.y));
-        adjacent.Add(new Coord(c.x + 1, c.y + 1));
-
-        foreach(Coord adj in adjacent){
-            if(adj.x >= 0 && adj.x < mapSize.x &&
-            adj.y >= 0 && adj.y < mapSize.y){
-                if(allTiles[adj].isBomb){
-                    i ++;
-                }
-            }
-        }
-
-        return i;
+        return newBomb;
     }
 
     private int CalcAdjFlags(Coord c){
@@ -354,6 +309,10 @@ public class Generator : MonoBehaviour
         StartCoroutine("PopTiles", tile);
     }
 
+    private void playEffect(ParticleSystem effect, Vector3 position){
+        Destroy(Instantiate(effect.gameObject, position, Quaternion.identity), effect.main.startLifetime.constant);
+    }
+
     private IEnumerator PopTiles(Tile tile){
         float duration = 1f;
         float popWait = duration / bombTiles.Count;
@@ -440,89 +399,4 @@ public class Generator : MonoBehaviour
 
         startCamera = new CameraLocation(camPosition, zoom);
     }
-
-    public class Tile{
-        public static System.Action<Tile> OnBombHit;
-        public static System.Action<bool> OnFlagChange;
-        public static System.Action OnCheckWin;
-        public static ParticleSystem popEffect;
-        public static ParticleSystem flagEffect;
-        public static ParticleSystem revealEffect;
-
-        public Coord coord;
-        public Transform overTile;
-        public Transform underTile;
-
-        public bool isRevealed = false;
-        public bool isBomb = false;
-        public bool isFlagged = false;
-
-        public int adjBombs;
-
-        public Tile(Coord _coord){
-            this.coord = _coord;
-        }
-
-        public bool Reveal(){
-            bool revealed = false;
-
-            if(!isFlagged && !isRevealed){
-                isRevealed = true;
-                revealed = true;
-                AudioManager.instance.PlaySound2d("reveal",.5f);
-                Destroy(overTile.gameObject);
-                Vector3 position = overTile.transform.position;
-                Destroy(Instantiate(revealEffect.gameObject, position, Quaternion.identity), revealEffect.main.startLifetime.constant);
-                OnCheckWin();
-            }
-
-            if(isBomb && isRevealed){
-                if(OnBombHit != null){
-                    OnBombHit(this);
-                    if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
-                        Vibrator.Vibrate(200);
-                    }
-                }
-            }
-
-            return revealed;
-        }
-
-        public void Pop(float vol){
-            if(!isRevealed){
-                isRevealed = true;
-                AudioManager.instance.PlaySound2d("pop", vol);
-                Destroy(overTile.gameObject);
-                Transform t = underTile.transform;
-                t.position += Vector3.back * 6f;
-                Destroy(Instantiate(popEffect.gameObject, t), popEffect.main.startLifetime.constant);
-                //Destroy(underTile.gameObject, popEffect.main.startLifetime.constant / 2f);
-            }
-        }
-
-        public void Flag(){
-            if(!isRevealed){
-                isFlagged = !isFlagged;
-                if(isFlagged){
-                    overTile.GetComponent<Renderer>().material.color = flagColor;
-                } else {
-                    overTile.GetComponent<Renderer>().material.color = overTileStartColor;
-                }
-
-                if(OnFlagChange != null){
-                    OnFlagChange(isFlagged);
-                }
-
-                AudioManager.instance.PlaySound2d("flag");
-
-                Vector3 position = overTile.transform.position;
-                Destroy(Instantiate(flagEffect.gameObject, position, Quaternion.identity), flagEffect.main.startLifetime.constant);
-
-                if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
-                    Vibrator.Vibrate(100);
-                }
-            }
-        }
-    }
-
 }

@@ -20,7 +20,7 @@ public class Solver{
         return instance;
     }
 
-    public bool[,] GenerateSolvableMap(int x, int y, int bombCount, Coord firstClick){
+    public Game[,] GenerateSolvableMap(int x, int y, int bombCount, Coord firstClick){
         GameBoard board = new GameBoard(x, y, bombCount);
         Square clickedSquare = board.squares[firstClick.x, firstClick.y];
 
@@ -60,14 +60,26 @@ public class Solver{
 
         // UnityEngine.Debug.Log("Generated " + genAttempts + " in " + (s.ElapsedMilliseconds));
 
-        bool[,] game = new bool[x,y];
+        Game[,] game = new Game[x,y];
         for(int i = 0; i < x; i++){
             for(int j = 0; j < y; j++){
-                game[i, j] = board.squares[i,j].mine;
+                Square s = board.squares[i,j];
+                Game g = new Game(board.squares[i,j].mine, board.countNeighbors(s, GameBoard.COUNT_MINE));
+                game[i, j] = g;
             }
         }
 
         return game;
+    }
+
+    public struct Game{
+        public bool IsMine;
+        public int adjCount;
+
+        public Game(bool mine, int count){
+            this.IsMine = mine;
+            this.adjCount = count;
+        }
     }
 
     
