@@ -24,10 +24,13 @@ public class Controller : MonoBehaviour
     private float moveThreshold = 3000;
 
     private bool isEndgaming = false;
+    private bool isGenerating = false;
 
     void Start(){
         board = GetComponent<Generator>();
         board.OnGameOver += HandleEndgame;
+        board.OnGeneration += OnStartGen;
+        board.OnNewGame += OnEndGen;
     }
 
     void Update()
@@ -68,7 +71,7 @@ public class Controller : MonoBehaviour
                         //Debug.Log("Touch Time: " + touchTime);
 
                         if(touchTime < longTouchThreshold){
-                            if(OnTouchEvent != null){
+                            if(OnTouchEvent != null && !isGenerating){
                                 Ray ray = Camera.main.ScreenPointToRay(touch.position);
                                 OnTouchEvent(ray);
                             }
@@ -81,7 +84,7 @@ public class Controller : MonoBehaviour
 
                         if(touchTime >= longTouchThreshold){
                             touchStartTime = 0;
-                            if(OnLongTouchEvent != null){
+                            if(OnLongTouchEvent != null && !isGenerating){
                                 Ray ray = Camera.main.ScreenPointToRay(touch.position);
                                 OnLongTouchEvent(ray);
                             }
@@ -105,7 +108,7 @@ public class Controller : MonoBehaviour
         Vector2 mousePosition = new Vector2(_mp.x, _mp.y);
 
         if(Input.GetMouseButton(0)){
-            if(OnTouchEvent != null){
+            if(OnTouchEvent != null && !isGenerating){
                 Ray ray = Camera.main.ScreenPointToRay(mousePosition);
                 OnTouchEvent(ray);
             }
@@ -114,7 +117,7 @@ public class Controller : MonoBehaviour
         if(Input.GetMouseButton(1)){
             if(Time.time - touchStartTime > 1){
                 touchStartTime = Time.time;
-                if(OnTouchEvent != null){
+                if(OnTouchEvent != null && !isGenerating){
                     Ray ray = Camera.main.ScreenPointToRay(mousePosition);
                     OnLongTouchEvent(ray);
                 }
@@ -205,5 +208,13 @@ public class Controller : MonoBehaviour
         Camera.main.orthographicSize = endZoom;
 
         isEndgaming = false;
+    }
+
+    private void OnStartGen(){
+        isGenerating = true;
+    }
+
+    private void OnEndGen(){
+        isGenerating = false;
     }
 }

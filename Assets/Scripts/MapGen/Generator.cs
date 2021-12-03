@@ -23,6 +23,7 @@ public class Generator : MonoBehaviour
     public int bombCount = 99;
 
     public System.Action OnNewGame;
+    public System.Action OnGeneration;
     public System.Action<bool> OnGameOver;
     public System.Action<bool> OnFlagChange;
 
@@ -121,27 +122,33 @@ public class Generator : MonoBehaviour
         gameOver = false;
         gameStarted = true;
 
+        if(OnGeneration != null){
+            OnGeneration();
+        }
+
         bombTiles = new Queue<Tile>();
 
-        Solver.Game[,] game = Solver.getSolver().GenerateSolvableMap(mapSize.x, mapSize.y, bombCount, firstClick);
+        StartCoroutine(Solver.getSolver().GenerateSolvableMap(mapSize.x, mapSize.y, bombCount, firstClick, (value) => {
 
-        for(int i = 0; i < mapSize.x; i++){
-            for(int j = 0; j < mapSize.y; j++){
-                Solver.Game g = game[i,j];
-                Coord c = new Coord(i, j);
+            for(int i = 0; i < mapSize.x; i++){
+                for(int j = 0; j < mapSize.y; j++){
+                    Solver.Game g = value[i,j];
+                    Coord c = new Coord(i, j);
 
-                Tile t = allTiles[c];
-                t.SetBomb(g.IsMine, g.adjCount);
+                    Tile t = allTiles[c];
+                    t.SetBomb(g.IsMine, g.adjCount);
 
-                if(t.isBomb){
-                    bombTiles.Enqueue(t);
+                    if(t.isBomb){
+                        bombTiles.Enqueue(t);
+                    }
                 }
             }
-        }
 
-        if(OnNewGame != null){
-            OnNewGame();
-        }
+            if(OnNewGame != null){
+                OnNewGame();
+            }
+            RecurseReveal(firstClick);
+        }));
     }
 
     private Transform SpawnTile(Coord coord, Transform parent){
@@ -253,25 +260,26 @@ public class Generator : MonoBehaviour
         if(hitCoord != null){
             if(!gameStarted){
                 startGame(hitCoord);
-            }
+            } else {
             
-            if(!gameOver){
-                if(allTiles.ContainsKey(hitCoord)){
-                    Tile tile = allTiles[hitCoord];
-                    bool isAlreadyRevealed = tile.isRevealed;
-                    int adjReveals = 0;
+                if(!gameOver){
+                    if(allTiles.ContainsKey(hitCoord)){
+                        Tile tile = allTiles[hitCoord];
+                        bool isAlreadyRevealed = tile.isRevealed;
+                        int adjReveals = 0;
 
-                    if((!tile.isBomb && tile.adjBombs == 0)){
-                        RecurseReveal(hitCoord);
-                    } else if (!tile.isBomb && tile.isRevealed && CalcAdjFlags(hitCoord) == tile.adjBombs) {
-                        adjReveals = RevealAdj(hitCoord);
-                    } else {
-                        tile.Reveal();
-                    }
-                    
-                    if((!isAlreadyRevealed && tile.isRevealed) || adjReveals != 0){
-                        if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
-                            Vibrator.Vibrate(50);
+                        if((!tile.isBomb && tile.adjBombs == 0)){
+                            RecurseReveal(hitCoord);
+                        } else if (!tile.isBomb && tile.isRevealed && CalcAdjFlags(hitCoord) == tile.adjBombs) {
+                            adjReveals = RevealAdj(hitCoord);
+                        } else {
+                            tile.Reveal();
+                        }
+                        
+                        if((!isAlreadyRevealed && tile.isRevealed) || adjReveals != 0){
+                            if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
+                                Vibrator.Vibrate(50);
+                            }
                         }
                     }
                 }

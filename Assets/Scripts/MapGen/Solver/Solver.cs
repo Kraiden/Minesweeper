@@ -1,4 +1,5 @@
-using System.Diagnostics;
+using System.Collections;
+//using System.Diagnostics;
 using UnityEngine;
 
 //An implementation of solver by 
@@ -20,18 +21,18 @@ public class Solver{
         return instance;
     }
 
-    public Game[,] GenerateSolvableMap(int x, int y, int bombCount, Coord firstClick){
+    public IEnumerator GenerateSolvableMap(int x, int y, int bombCount, Coord firstClick, System.Action<Game[,]> callback){
         GameBoard board = new GameBoard(x, y, bombCount);
         Square clickedSquare = board.squares[firstClick.x, firstClick.y];
 
         Algorithm alg = new DSSP();
 
-        // int genAttempts = 0;
+        int genAttempts = 0;
         // Stopwatch s = Stopwatch.StartNew();
 
         bool isSolvable = false;
         while (!isSolvable){
-            //genAttempts ++;
+            genAttempts ++;
             int placedMineNum = 0;
             int randRow;
             int randCol;
@@ -53,6 +54,11 @@ public class Solver{
             }
 
             isSolvable = alg.IsSolvable(board, clickedSquare.position.x * board.gridCol + clickedSquare.position.y);
+
+            //*sigh* I dunno why this takes so fecking long
+            if(genAttempts % 12 == 0 ){
+                yield return null;
+            }
             //Debug.Log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" + 
             //" is solveable loop");
         }
@@ -69,7 +75,7 @@ public class Solver{
             }
         }
 
-        return game;
+        callback(game);
     }
 
     public struct Game{

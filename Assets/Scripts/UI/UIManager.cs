@@ -33,6 +33,8 @@ public class UIManager : MonoBehaviour
 
     private int flagged = 0;
     private int bombs = 0;
+
+    private bool isGenerating = false;
     
     void Awake()
     {
@@ -42,7 +44,8 @@ public class UIManager : MonoBehaviour
 
         controller.OnTouchDown = OnTouchDown;
         controller.OnTouchUp = OnTouchUp;
-        board.OnNewGame = OnNewGame;
+        board.OnNewGame += OnNewGame;
+        board.OnGeneration += OnMapGen;
         board.OnGameOver = OnGameOver;
         board.OnFlagChange = OnFlagChange;
         
@@ -81,6 +84,7 @@ public class UIManager : MonoBehaviour
         imageButton.sprite = library.GetImageByName("playing");
         board.GenerateMap();
         gameDuration = 0;
+        inGame = false;
 
         bombs = board.bombCount;
         flagged = 0;
@@ -119,7 +123,7 @@ public class UIManager : MonoBehaviour
     }
 
     private void OnTouchDown(){
-        if(inGame){
+        if(inGame || isGenerating){
             imageButton.sprite = library.GetImageByName("down");
         }
     }
@@ -127,6 +131,8 @@ public class UIManager : MonoBehaviour
     private void OnTouchUp(){
         if(inGame){
             imageButton.sprite = library.GetImageByName("playing");
+        } else if(isGenerating){
+            imageButton.sprite = library.GetImageByName("thinking");
         }
     }
 
@@ -134,6 +140,13 @@ public class UIManager : MonoBehaviour
         inGame = true;
         timer.text = "00:00";
         gameStart = Time.time;
+        isGenerating = false;
+        imageButton.sprite = library.GetImageByName("playing");
+    }
+
+    private void OnMapGen(){
+        isGenerating = true;
+        imageButton.sprite = library.GetImageByName("thinking");
     }
 
     private void OnGameOver(bool win){
