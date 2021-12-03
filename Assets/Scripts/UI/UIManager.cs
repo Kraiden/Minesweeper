@@ -28,6 +28,7 @@ public class UIManager : MonoBehaviour
     ImageLibrary library;
 
     private float gameDuration = 0;
+    private float gameStart = 0;
     private bool inGame = false;
 
     private int flagged = 0;
@@ -65,11 +66,13 @@ public class UIManager : MonoBehaviour
             vibrateButton.sprite = vibrateOff;
         }
 
+        InvokeRepeating("UpdateTime", 0, 1f);
+
     }
 
-    void Update(){
+    private void UpdateTime(){
         if(inGame){
-            gameDuration += Time.deltaTime;
+            gameDuration = Time.time - gameStart;
             timer.text = FormatTime(gameDuration);
         }
     }
@@ -130,6 +133,7 @@ public class UIManager : MonoBehaviour
     private void OnNewGame(){
         inGame = true;
         timer.text = "00:00";
+        gameStart = Time.time;
     }
 
     private void OnGameOver(bool win){
