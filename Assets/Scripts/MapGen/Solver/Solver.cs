@@ -116,9 +116,7 @@ public class Solver{
         int idx = -1;
         for(int i = 0; i < x; i++){
             for(int j = 0; j < y; j++){
-                idx++;
-                Debug.Log("i=" + i + ", j=" + j + ", idx=" + idx);
-                all[idx] = (i * y) + j;
+                all[++idx] = (i * y) + j;
             }
         }
 
