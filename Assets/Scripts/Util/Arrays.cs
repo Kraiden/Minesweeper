@@ -5,7 +5,7 @@ using UnityEngine;
 public static class Arrays {
 
     public static T[] Shuffle<T>(T[] array){
-        return Shuffle(array, Random.Range(0, int.MaxValue));
+        return Shuffle(array, new System.Random().Next(int.MinValue, int.MaxValue));
     }
     
     public static T[] Shuffle<T>(T[] array, int seed){

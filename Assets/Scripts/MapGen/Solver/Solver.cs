@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 //using System.Diagnostics;
 using System.Threading;
 using UnityEngine;
@@ -19,6 +20,9 @@ public class Solver{
     private Coord firstClick;
     private System.Action<Game[,]> callback;
 
+    private bool noGuess;
+    private bool noGuessOverride;
+
     private Game[,] result;
 
     private Solver() {}
@@ -37,6 +41,9 @@ public class Solver{
         this.firstClick = firstClick;
         this.callback = callback;
 
+        this.noGuess = PlayerPrefs.GetInt("settings-no-guess", 1) == 1;
+        this.noGuessOverride = PlayerPrefs.GetInt("settings-no-guess-override", 0)  == 1;
+
         Thread genThread = new Thread(DoMapGen);
         genThread.Priority = System.Threading.ThreadPriority.Highest;
         genThread.Start();
@@ -53,16 +60,18 @@ public class Solver{
         GameBoard board = new GameBoard(x, y, bombCount);
         Square clickedSquare = board.squares[firstClick.x, firstClick.y];
 
-        Algorithm alg = new DSSP();
+        Algorithm alg; 
 
-        int genAttempts = 0;
-        // Stopwatch s = Stopwatch.StartNew();
+        if(noGuess && !noGuessOverride){
+            alg = new DSSP();
+        } else {
+            alg = new None();
+        }
 
-        System.Random r = new System.Random();
+        int[] allCoords = GenAllCoords(x, y);
 
         bool isSolvable = false;
         while (!isSolvable){
-            genAttempts ++;
             int placedMineNum = 0;
             int randRow;
             int randCol;
@@ -70,9 +79,12 @@ public class Solver{
             board.reInit();
             board.probedCount = 1;
 
+            Queue<int> shuffledCoord = new Queue<int>(Arrays.Shuffle(allCoords));
+
             while (placedMineNum < board.mineNumber){
-                randRow = r.Next(0, board.gridRow);
-                randCol = r.Next(0, board.gridCol);
+                int index = shuffledCoord.Dequeue();
+                randRow = index / y;
+                randCol = index % y;
 
                 //Don't place mines near start position
                  if(!(randRow >= clickedSquare.position.x - 1 && randRow <= clickedSquare.position.x + 1 
@@ -84,14 +96,8 @@ public class Solver{
             }
 
             isSolvable = alg.IsSolvable(board, clickedSquare.position.x * board.gridCol + clickedSquare.position.y);
-
-            //Debug.Log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" + 
-            //" is solveable loop");
         }
-        // s.Stop();
-
-        // UnityEngine.Debug.Log("Generated " + genAttempts + " in " + (s.ElapsedMilliseconds));
-
+        
         Game[,] game = new Game[x,y];
         for(int i = 0; i < x; i++){
             for(int j = 0; j < y; j++){
@@ -102,6 +108,21 @@ public class Solver{
         }
 
         result = game;
+    }
+
+    private int[] GenAllCoords(int x, int y){
+        int[] all = new int[x * y];
+        Debug.Log("size : " + x * y);
+        int idx = -1;
+        for(int i = 0; i < x; i++){
+            for(int j = 0; j < y; j++){
+                idx++;
+                Debug.Log("i=" + i + ", j=" + j + ", idx=" + idx);
+                all[idx] = (i * y) + j;
+            }
+        }
+
+        return all;
     }
 
     public struct Game{

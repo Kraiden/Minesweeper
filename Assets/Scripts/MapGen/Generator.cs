@@ -110,6 +110,7 @@ public class Generator : MonoBehaviour
 
     public void GenerateMap(){
         gameStarted = false;
+        StopCoroutine("PopTiles");
 
         foreach(Tile tile in allTiles.Values){
             tile.Reset();

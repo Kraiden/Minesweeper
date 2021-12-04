@@ -5,6 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class MenuController : MonoBehaviour
 {
+    public GameObject mainMenu;
+    public GameObject customMenu;
+    public GameObject settingsMenu;
+
     public void EasyClick() {
         StartGame(9,9,10);
     }
@@ -17,9 +21,16 @@ public class MenuController : MonoBehaviour
         StartGame(16,30,99);
     }
 
-    public void CustomClick() {}
+    public void CustomClick() {
+        customMenu.SetActive(true);
+        mainMenu.SetActive(false);
+        //StartGame(16,30,103);
+    }
 
-    public void SettingsClick() {}
+    public void SettingsClick() {
+        settingsMenu.SetActive(true);
+        mainMenu.SetActive(false);
+    }
 
     public void QuitClick() {
         Application.Quit();
@@ -29,6 +40,8 @@ public class MenuController : MonoBehaviour
         PlayerPrefs.SetInt("map-x", x);
         PlayerPrefs.SetInt("map-y", y);
         PlayerPrefs.SetInt("map-bombs", bombs);
+
+        PlayerPrefs.SetInt("settings-no-guess-override", 0);
 
         PlayerPrefs.Save();
 
