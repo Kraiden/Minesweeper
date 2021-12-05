@@ -24,7 +24,6 @@ public class MenuController : MonoBehaviour
     public void CustomClick() {
         customMenu.SetActive(true);
         mainMenu.SetActive(false);
-        //StartGame(16,30,103);
     }
 
     public void SettingsClick() {
