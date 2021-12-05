@@ -36,11 +36,11 @@ public class MenuController : MonoBehaviour
     }
 
     private void StartGame(int x, int y, int bombs){
-        PlayerPrefs.SetInt("map-x", x);
-        PlayerPrefs.SetInt("map-y", y);
-        PlayerPrefs.SetInt("map-bombs", bombs);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_X, x);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_Y, y);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_BOMBS, bombs);
 
-        PlayerPrefs.SetInt("settings-no-guess-override", 0);
+        PlayerPrefs.SetInt(PrefsConstants.CUST_NO_GUESS_OVERRIDE, 0);
 
         PlayerPrefs.Save();
 

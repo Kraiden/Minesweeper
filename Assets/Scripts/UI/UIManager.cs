@@ -49,13 +49,13 @@ public class UIManager : MonoBehaviour
         board.OnGameOver = OnGameOver;
         board.OnFlagChange = OnFlagChange;
         
-        bombs = PlayerPrefs.GetInt("map-bombs", 99);
+        bombs = PlayerPrefs.GetInt(PrefsConstants.MAP_BOMBS, 99);
         flagCount.text = bombs.ToString();
 
         inGame = false;
 
-        var sound = PlayerPrefs.GetInt("settings-sound", 1);
-        var vib = PlayerPrefs.GetInt("settings-vib", 1);
+        var sound = PlayerPrefs.GetInt(PrefsConstants.MAP_SOUND, 1);
+        var vib = PlayerPrefs.GetInt(PrefsConstants.MAP_VIBRATE, 1);
 
         if(sound == 1){
             soundButton.sprite = soundOn;
@@ -97,9 +97,9 @@ public class UIManager : MonoBehaviour
     }
 
     public void OnSoundClick(){
-        var sound = PlayerPrefs.GetInt("settings-sound", 1);
+        var sound = PlayerPrefs.GetInt(PrefsConstants.MAP_SOUND, 1);
         sound = 1 - sound;
-        PlayerPrefs.SetInt("settings-sound", sound);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_SOUND, sound);
         PlayerPrefs.Save();
 
         if(sound == 1){
@@ -110,9 +110,9 @@ public class UIManager : MonoBehaviour
     }
 
     public void OnVibClick(){
-        var vib = PlayerPrefs.GetInt("settings-vib", 1);
+        var vib = PlayerPrefs.GetInt(PrefsConstants.MAP_VIBRATE, 1);
         vib = 1 - vib;
-        PlayerPrefs.SetInt("settings-vib", vib);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_VIBRATE, vib);
         PlayerPrefs.Save();
 
         if(vib == 1){
@@ -155,8 +155,11 @@ public class UIManager : MonoBehaviour
             imageButton.sprite = library.GetImageByName("win");
             AudioManager.instance.PlaySound2d("win");
             flagCount.text = "0";
-            Vector3 position = Vector3.zero + (Vector3.back * 6f);
-            Destroy(Instantiate(winEffect.gameObject, position, Quaternion.identity), winEffect.main.startLifetime.constant);
+
+            if(PlayerPrefs.GetInt(PrefsConstants.SET_PARTICLES_ENABLED, 1) == 1 ){
+                Vector3 position = Vector3.zero + (Vector3.back * 6f);
+                Destroy(Instantiate(winEffect.gameObject, position, Quaternion.identity), winEffect.main.startLifetime.constant);
+            }
         } else {
             imageButton.sprite = library.GetImageByName("lose");
         }

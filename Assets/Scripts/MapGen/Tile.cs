@@ -82,15 +82,18 @@ public class Tile{
 
                 overTile.gameObject.SetActive(false);
 
-                Vector3 position = overTile.transform.position;
-                playEffect(revealEffect, position);
+                if(PlayerPrefs.GetInt(PrefsConstants.SET_PARTICLES_ENABLED, 1) == 1 ){
+                    Vector3 position = overTile.transform.position;
+                    playEffect(revealEffect, position);
+                }
+
                 OnCheckWin();
             }
 
             if(isBomb && isRevealed){
                 if(OnBombHit != null){
                     OnBombHit(this);
-                    if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
+                    if(PlayerPrefs.GetInt(PrefsConstants.MAP_VIBRATE, 1) == 1){
                         Vibrator.Vibrate(200);
                     }
                 }
@@ -106,10 +109,12 @@ public class Tile{
 
                 overTile.gameObject.SetActive(false);
 
-                Vector3 position = underTile.transform.position;
-                position += Vector3.back * 6f;
+                if(PlayerPrefs.GetInt(PrefsConstants.SET_PARTICLES_ENABLED, 1) == 1 ){
+                    Vector3 position = underTile.transform.position;
+                    position += Vector3.back * 6f;
 
-                playEffect(popEffect, position);
+                    playEffect(popEffect, position);
+                }
             }
         }
 
@@ -128,10 +133,12 @@ public class Tile{
 
                 AudioManager.instance.PlaySound2d("flag");
 
-                Vector3 position = overTile.transform.position;
-                playEffect(flagEffect, position);
+                if(PlayerPrefs.GetInt(PrefsConstants.SET_PARTICLES_ENABLED, 1) == 1 ){
+                    Vector3 position = overTile.transform.position;
+                    playEffect(flagEffect, position);
+                }
 
-                if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
+                if(PlayerPrefs.GetInt(PrefsConstants.MAP_VIBRATE, 1) == 1){
                     Vibrator.Vibrate(100);
                 }
             }

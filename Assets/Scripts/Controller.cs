@@ -31,6 +31,9 @@ public class Controller : MonoBehaviour
         board.OnGameOver += HandleEndgame;
         board.OnGeneration += OnStartGen;
         board.OnNewGame += OnEndGen;
+
+        longTouchThreshold = PlayerPrefs.GetFloat(PrefsConstants.SET_TOUCH_SENSITIVITY, 0.65f);
+        moveThreshold = PlayerPrefs.GetFloat(PrefsConstants.SET_MOVE_SENSITIVITY, 3000);
     }
 
     void Update()

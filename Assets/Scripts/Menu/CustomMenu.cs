@@ -23,12 +23,12 @@ public class CustomMenu : MonoBehaviour
     }
 
     public void SettingsUpdated(){
-        int x = PlayerPrefs.GetInt("custom-x", 9);
-        int y = PlayerPrefs.GetInt("custom-y", 9);
-        int bombs = PlayerPrefs.GetInt("custom-bombs", 10);
+        int x = PlayerPrefs.GetInt(PrefsConstants.CUST_X, 9);
+        int y = PlayerPrefs.GetInt(PrefsConstants.CUST_Y, 9);
+        int bombs = PlayerPrefs.GetInt(PrefsConstants.CUST_BOMBS, 10);
 
-        bool isLocked = PlayerPrefs.GetInt("custom-lock", 0) == 1;
-        bool noGuess = PlayerPrefs.GetInt("settings-no-guess", 1) == 1;
+        bool isLocked = PlayerPrefs.GetInt(PrefsConstants.CUST_LOCK, 0) == 1;
+        bool noGuess = PlayerPrefs.GetInt(PrefsConstants.SET_NO_GUESS_ENABLED, 1) == 1;
         
 
         if(!noGuess){
@@ -58,7 +58,7 @@ public class CustomMenu : MonoBehaviour
         float mnCount = mines.value;
 
         bool isLocked = settingsLock.isOn;
-        bool noGuess = PlayerPrefs.GetInt("settings-no-guess", 1) == 1;
+        bool noGuess = PlayerPrefs.GetInt(PrefsConstants.SET_NO_GUESS_ENABLED, 1) == 1;
 
         float maxMines;
         if(isLocked && noGuess){
@@ -111,15 +111,15 @@ public class CustomMenu : MonoBehaviour
 
         bool noGuessOverride = bombs / (x * y) > MAX_MINES_PCT || bombs > MAX_MINES;
         
-        PlayerPrefs.SetInt("map-x", x);
-        PlayerPrefs.SetInt("map-y", y);
-        PlayerPrefs.SetInt("map-bombs", bombs);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_X, x);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_Y, y);
+        PlayerPrefs.SetInt(PrefsConstants.MAP_BOMBS, bombs);
 
-        PlayerPrefs.SetInt("custom-x", x);
-        PlayerPrefs.SetInt("custom-y", y);
-        PlayerPrefs.SetInt("custom-bombs", bombs);
+        PlayerPrefs.SetInt(PrefsConstants.CUST_X, x);
+        PlayerPrefs.SetInt(PrefsConstants.CUST_Y, y);
+        PlayerPrefs.SetInt(PrefsConstants.CUST_BOMBS, bombs);
 
-        PlayerPrefs.SetInt("settings-no-guess-override", noGuessOverride ? 1 : 0 );
+        PlayerPrefs.SetInt(PrefsConstants.CUST_NO_GUESS_OVERRIDE, noGuessOverride ? 1 : 0 );
 
         PlayerPrefs.Save();
 

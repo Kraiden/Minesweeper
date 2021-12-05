@@ -62,9 +62,9 @@ public class Generator : MonoBehaviour
         Tile.flagColor = flagColor;
         Tile.countColours = countColours;
 
-        int x = PlayerPrefs.GetInt("map-x", 16);
-        int y = PlayerPrefs.GetInt("map-y", 30);
-        int bombs = PlayerPrefs.GetInt("map-bombs", 99);
+        int x = PlayerPrefs.GetInt(PrefsConstants.MAP_X, 16);
+        int y = PlayerPrefs.GetInt(PrefsConstants.MAP_Y, 30);
+        int bombs = PlayerPrefs.GetInt(PrefsConstants.MAP_BOMBS, 99);
 
         mapSize = new Coord(x, y);
         bombCount = bombs;
@@ -278,7 +278,7 @@ public class Generator : MonoBehaviour
                         }
                         
                         if((!isAlreadyRevealed && tile.isRevealed) || adjReveals != 0){
-                            if(PlayerPrefs.GetInt("settings-vib", 1) == 1){
+                            if(PlayerPrefs.GetInt(PrefsConstants.MAP_VIBRATE, 1) == 1){
                                 Vibrator.Vibrate(50);
                             }
                         }
@@ -304,7 +304,13 @@ public class Generator : MonoBehaviour
         if(OnGameOver != null){
             OnGameOver(false);
         }
-        StartCoroutine("PopTiles", tile);
+        if(PlayerPrefs.GetInt(PrefsConstants.SET_DEFEAT_ANIM_ENABLED, 1) == 1){
+            StartCoroutine("PopTiles", tile);
+        } else {
+            foreach(Tile t in bombTiles){
+                t.Pop(1f);
+            }
+        }
     }
 
     private void playEffect(ParticleSystem effect, Vector3 position){

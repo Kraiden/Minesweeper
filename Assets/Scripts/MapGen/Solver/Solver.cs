@@ -5,8 +5,7 @@ using System.Threading;
 using UnityEngine;
 
 //An implementation of solver by 
-// Single Point Algorithm and Constraint Satisfication 
-// Problem strategy
+// Double Set Single Point Algorithm
 //
 // Adapted from: https://github.com/purindaisuki/Minesweeper
 // Adapted by: Someone who doesn't know C# very well... Sooo use at your own risk.
@@ -41,8 +40,8 @@ public class Solver{
         this.firstClick = firstClick;
         this.callback = callback;
 
-        this.noGuess = PlayerPrefs.GetInt("settings-no-guess", 1) == 1;
-        this.noGuessOverride = PlayerPrefs.GetInt("settings-no-guess-override", 0)  == 1;
+        this.noGuess = PlayerPrefs.GetInt(PrefsConstants.SET_NO_GUESS_ENABLED, 1) == 1;
+        this.noGuessOverride = PlayerPrefs.GetInt(PrefsConstants.CUST_NO_GUESS_OVERRIDE, 0)  == 1;
 
         Thread genThread = new Thread(DoMapGen);
         genThread.Priority = System.Threading.ThreadPriority.Highest;
@@ -112,7 +111,7 @@ public class Solver{
 
     private int[] GenAllCoords(int x, int y){
         int[] all = new int[x * y];
-        Debug.Log("size : " + x * y);
+
         int idx = -1;
         for(int i = 0; i < x; i++){
             for(int j = 0; j < y; j++){

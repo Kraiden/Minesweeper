@@ -30,7 +30,7 @@ public class AudioManager : MonoBehaviour
     }
 
     public void PlaySound2d(string name, float vol = 1f){
-        if(PlayerPrefs.GetInt("settings-sound", 1) == 1){
+        if(PlayerPrefs.GetInt(PrefsConstants.MAP_SOUND, 1) == 1){
             AudioClip clip = GetClipByName(name);
 
             if(clip != null){
