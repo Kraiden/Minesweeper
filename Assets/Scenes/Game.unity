@@ -1315,13 +1315,14 @@ MonoBehaviour:
     - {fileID: 8300000, guid: eb206609fd9427f4ab5b03abb038ed22, type: 3}
     randomize: 1
   - groupID: reveal
-    simultaneosCount: 2
+    simultaneosCount: 1
     group:
-    - {fileID: 8300000, guid: 1ddfef6d270cf024f8fb796283c1b595, type: 3}
-    - {fileID: 8300000, guid: c4f66168ea73adc469266cfb4a4ee790, type: 3}
-    - {fileID: 8300000, guid: b180039b9f6b5574299031bd3129b19a, type: 3}
-    - {fileID: 8300000, guid: 8a2c29447e61e8a4cbc10de8e1dfb854, type: 3}
-    randomize: 0
+    - {fileID: 8300000, guid: 10c32e4a50ab4aa4f94cfca5fb10b04c, type: 3}
+    - {fileID: 8300000, guid: 0a0ecef789665fc458ca4bec4756b059, type: 3}
+    - {fileID: 8300000, guid: 81445a68a924bba439957f1a670cd72f, type: 3}
+    - {fileID: 8300000, guid: f9a831fc08ee43e42a91079878d329a7, type: 3}
+    - {fileID: 8300000, guid: a095d49646eb797479978592acb387d3, type: 3}
+    randomize: 1
   - groupID: flag
     simultaneosCount: -1
     group:
