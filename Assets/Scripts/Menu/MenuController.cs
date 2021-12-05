@@ -9,7 +9,31 @@ public class MenuController : MonoBehaviour
     public GameObject customMenu;
     public GameObject settingsMenu;
 
+    void Start(){
+        // Initialize Firebase
+        Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
+            var dependencyStatus = task.Result;
+            if (dependencyStatus == Firebase.DependencyStatus.Available)
+            {
+                // Create and hold a reference to your FirebaseApp,
+                // where app is a Firebase.FirebaseApp property of your application class.
+                // Crashlytics will use the DefaultInstance, as well;
+                // this ensures that Crashlytics is initialized.
+                Firebase.FirebaseApp app = Firebase.FirebaseApp.DefaultInstance;
+
+                // Set a flag here for indicating that your project is ready to use Firebase.
+            }
+            else
+            {
+                UnityEngine.Debug.LogError(System.String.Format(
+                  "Could not resolve all Firebase dependencies: {0}",dependencyStatus));
+                // Firebase Unity SDK is not safe to use here.
+            }
+        });
+    }
+
     public void EasyClick() {
+        throw new System.Exception("This 'ere be just a test matey");
         StartGame(9,9,10);
     }
 
