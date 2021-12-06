@@ -33,7 +33,6 @@ public class MenuController : MonoBehaviour
     }
 
     public void EasyClick() {
-        throw new System.Exception("This 'ere be just a test matey");
         StartGame(9,9,10);
     }
 

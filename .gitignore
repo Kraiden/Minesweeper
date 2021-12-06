@@ -69,3 +69,15 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Firebase config
+/[Aa]ssets/google-services.json
+/[Aa]ssets/google-services.json.meta
+/[Aa]ssets/[Pp]lugins/Android/FirebaseApp.androidlib/res/values/google-services.xml
+/[Aa]ssets/[Pp]lugins/Android/FirebaseApp.androidlib/res/values/google-services.xml.meta
+/[Aa]ssets/[Ss]treamingAssets/google-services-desktop.json
+/[Aa]ssets/[Ss]treamingAssets/google-services-desktop.json.meta
+
+# Large files - ffs, I'm giving up. Just get these yourself
+/Assets/Firebase/*
+/Assets/Plugins/iOS/*
